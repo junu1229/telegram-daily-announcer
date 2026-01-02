@@ -4,16 +4,16 @@ import config
 
 
 async def send_message():
-    """소스 채널의 메시지를 대상 채널로 복사합니다."""
+    """소스 채널의 메시지를 대상 채널로 포워딩합니다."""
     bot = Bot(token=config.BOT_TOKEN)
 
     try:
-        await bot.copy_message(
+        await bot.forward_message(
             chat_id=config.CHANNEL_ID,
             from_chat_id=config.SOURCE_CHANNEL_ID,
             message_id=config.SOURCE_MESSAGE_ID
         )
-        print("공지 발송 완료!")
+        print("공지 포워딩 완료!")
         return True
     except Exception as e:
         print(f"발송 실패: {e}")
