@@ -10,7 +10,7 @@ def start_scheduler():
 
     scheduler.add_job(
         send_announcement,
-        CronTrigger(hour=config.SCHEDULE_HOUR, minute=config.SCHEDULE_MINUTE),
+        CronTrigger(hour=config.SCHEDULE_HOUR, minute=config.SCHEDULE_MINUTE, timezone=config.TIMEZONE),
         id="daily_announcement"
     )
 

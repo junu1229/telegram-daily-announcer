@@ -19,6 +19,18 @@ python bot.py
 python bot.py --test
 ```
 
+### Docker
+
+```bash
+make build    # Docker 이미지 빌드
+make up       # 컨테이너 시작 (백그라운드)
+make down     # 컨테이너 중지
+make logs     # 로그 확인
+make test     # 테스트 모드 실행
+make clean    # Docker 리소스 정리
+make install  # pip install (venv 활성화 후)
+```
+
 ## Architecture
 
 The bot uses APScheduler's `BlockingScheduler` with cron triggers for daily execution. Since python-telegram-bot is async but APScheduler callbacks are sync, `message_sender.py` uses `asyncio.run()` to bridge them.
