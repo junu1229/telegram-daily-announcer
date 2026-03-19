@@ -27,7 +27,10 @@ def save_latest_message(message: Message) -> None:
             json.dump(data, f)
         os.replace(tmp_path, config.LATEST_MESSAGE_FILE)
     except BaseException:
-        os.unlink(tmp_path)
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
         raise
 
     print(f"Latest message saved: ID {message.message_id}")
@@ -42,6 +45,8 @@ async def forward_latest_message(bot: Bot) -> bool:
     try:
         with open(config.LATEST_MESSAGE_FILE) as f:
             data = json.load(f)
+        source_channel_id = data["source_channel_id"]
+        message_id = data["message_id"]
     except (json.JSONDecodeError, KeyError) as e:
         print(f"Failed to read latest message file: {e}")
         return False
@@ -49,10 +54,10 @@ async def forward_latest_message(bot: Bot) -> bool:
     try:
         await bot.forward_message(
             chat_id=config.CHANNEL_ID,
-            from_chat_id=data["source_channel_id"],
-            message_id=data["message_id"],
+            from_chat_id=source_channel_id,
+            message_id=message_id,
         )
-        print(f"Forwarded message {data['message_id']}!")
+        print(f"Forwarded message {message_id}!")
         return True
     except Exception as e:
         print(f"Forward failed: {e}")
