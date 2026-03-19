@@ -10,11 +10,22 @@ import config
 from message_sender import forward_latest_message, save_latest_message
 
 
-async def handle_channel_post(
+async def debug_all_posts(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> None:
-    """Store the latest message ID when a new post arrives in the source channel."""
-    save_latest_message(update.channel_post)
+    """Debug: log all incoming messages (channel posts and group messages)."""
+    msg = update.channel_post or update.message
+    if msg:
+        print(f"[DEBUG] Received from chat: id={msg.chat.id}, type={msg.chat.type}, username={msg.chat.username}, title={msg.chat.title}")
+
+
+async def handle_source_message(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> None:
+    """Store the latest message ID when a new post arrives in the source chat."""
+    msg = update.channel_post or update.message
+    if msg:
+        save_latest_message(msg)
 
 
 async def scheduled_forward(context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -48,10 +59,14 @@ def main() -> None:
         chat_filter = filters.Chat(chat_id=int(src))
     else:
         chat_filter = filters.Chat(username=src.lstrip("@"))
+    # Support both channel posts and group messages
+    update_type_filter = filters.UpdateType.CHANNEL_POST | filters.UpdateType.MESSAGE
     source_filter = (
-        filters.UpdateType.CHANNEL_POST & chat_filter & ~filters.StatusUpdate.ALL
+        update_type_filter & chat_filter & ~filters.StatusUpdate.ALL
     )
-    application.add_handler(MessageHandler(source_filter, handle_channel_post))
+    # Debug handler: log ALL incoming posts/messages (no filter)
+    application.add_handler(MessageHandler(update_type_filter, debug_all_posts), group=-1)
+    application.add_handler(MessageHandler(source_filter, handle_source_message))
 
     # Job: forward latest message daily
     tz = zoneinfo.ZoneInfo(config.TIMEZONE)
@@ -68,7 +83,7 @@ def main() -> None:
     )
     print("Press Ctrl+C to stop.")
 
-    application.run_polling(allowed_updates=["channel_post"])
+    application.run_polling(allowed_updates=["channel_post", "message"])
 
 
 if __name__ == "__main__":
