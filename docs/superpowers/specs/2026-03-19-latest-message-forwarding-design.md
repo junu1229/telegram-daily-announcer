@@ -33,7 +33,7 @@ Only regular channel posts are tracked (text, photo, video, etc.). Service messa
 
 ```json
 {
-  "source_channel_id": "-100123456",
+  "source_channel_id": -100123456,
   "message_id": 4567,
   "updated_at": "2026-03-19T08:30:00+09:00"
 }
