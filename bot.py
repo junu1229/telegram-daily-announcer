@@ -31,6 +31,9 @@ def run_test() -> None:
 
 
 def main() -> None:
+    if not config.BOT_TOKEN or not config.CHANNEL_ID or not config.SOURCE_CHANNEL_ID:
+        sys.exit("Error: BOT_TOKEN, CHANNEL_ID, and SOURCE_CHANNEL_ID must be set in .env")
+
     if len(sys.argv) > 1 and sys.argv[1] == "--test":
         print("Test mode: forwarding latest message now.")
         run_test()
